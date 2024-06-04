@@ -45,7 +45,7 @@ async function run() {
       return res.status(401).send({message:'forbiden access'})
     }
     const token=req.headers.authorization.split(' ')[1];
-   jwt.verify(token,process.env.Access_Token_secret,(err,decoded)=>{
+   jwt.verify(token,process.env.ACCESS_TOKEN_SECREAT,(err,decoded)=>{
      if (err) {
       return res.status(401).send({message:"forbiden access"})
      }
@@ -109,6 +109,22 @@ async function run() {
     const result =await usersCollection.updateOne(queary,updateddoc);
     res.send(result)
   })
+
+    // admin check
+    app.get("/users/admin/:email",varifyToken,async(req,res)=>{
+      const email=req.params.email;
+        if (email !== req.decoded.email) {
+          return res.status(403).send({message:"unautharized access"})
+        }
+        const queary ={email:email};
+        const user=await usersCollection.findOne(queary);
+        let isAdmin=false;
+        if (user) {
+          isAdmin=user?.role==='admin'
+  
+        }
+        res.send({isAdmin})
+      })
 
 
 
