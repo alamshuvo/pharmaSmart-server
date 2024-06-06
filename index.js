@@ -28,6 +28,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // Send a ping to confirm a successful connection
     const usersCollection=client.db('parmasmartDB').collection('users')
+    const medicineCollection=client.db('parmasmartDB').collection('medicine')
+    const cartCollection=client.db('parmasmartDB').collection('carts')
    
       // jwt related api
       app.post("/jwt",async(req,res)=>{
@@ -42,12 +44,12 @@ async function run() {
   const varifyToken=(req,res,next)=>{
     // console.log("inside verify token",req.headers.authorization);
     if (!req.headers.authorization) {
-      return res.status(401).send({message:'forbiden access'})
+      return res.status(401).send({message:'forbiden access1'})
     }
     const token=req.headers.authorization.split(' ')[1];
    jwt.verify(token,process.env.ACCESS_TOKEN_SECREAT,(err,decoded)=>{
      if (err) {
-      return res.status(401).send({message:"forbiden access"})
+      return res.status(401).send({message:"forbiden access2"})
      }
      req.decoded=decoded;
      next()
@@ -63,7 +65,7 @@ async function run() {
    const user =await usersCollection.findOne(quary);
    const isAdmin= user?.role==='admin';
    if (!isAdmin) {
-    return res.status(403).send({message:"forbiden access"})
+    return res.status(403).send({message:"forbiden access3"})
    }
    next()
   }
@@ -126,8 +128,92 @@ async function run() {
         res.send({isAdmin})
       })
 
+    // seller check
+    app.get("/users/seller/:email",varifyToken,async(req,res)=>{
+      const email=req.params.email;
+        if (email !== req.decoded.email) {
+          return res.status(403).send({message:"unautharized access"})
+        }
+        const queary ={email:email};
+        const user=await usersCollection.findOne(queary);
+        let isSeller=false;
+        if (user) {
+          isSeller=user?.role==='seller'
+  
+        }
+        res.send({isSeller})
+      })
 
 
+
+      // post medicine
+
+
+    app.post("/medicine",async(req,res)=>{
+      const medicine=req.body;
+      // insert email if users dosent exist
+      // const queary={email:user.email}
+      // const exestingUser=await usersCollection.findOne(queary);
+      // if (exestingUser) {
+      //   return res.send({message:"User already exist",insertedId:null})
+      // }
+      console.log(medicine);
+      const result=await medicineCollection.insertOne(medicine);
+      res.send(result)
+    })
+
+    // get medicine
+    app.get("/medicine/:email",async(req,res)=>{
+      const email=req.params.email;
+      console.log(email);
+      const queary ={email:email};
+      console.log(queary);
+      // const user=await usersCollection.findOne(queary);
+      const result =await medicineCollection.find(queary).toArray();
+      console.log(result);
+        res.send(result);
+    })
+
+
+
+    // get medicine
+    app.get("/medicine",async(req,res)=>{
+      // const email=req.params.email;
+      // console.log(email);
+      // const queary ={email:email};
+      // const user=await usersCollection.findOne(queary);
+      const result =await medicineCollection.find().toArray();
+        res.send(result);
+    })
+
+
+
+
+    // Carts related Api 
+
+
+    app.post("/carts",async(req,res)=>{
+      const carts=req.body;
+      console.log(carts);
+      const result=await cartCollection.insertOne(carts);
+      res.send(result)
+    })
+    app.get("/carts",async(req,res)=>{
+      // const email=req.params.email;
+      // console.log(email);
+      // const queary ={email:email};
+      // const user=await usersCollection.findOne(queary);
+      const result =await cartCollection.find().toArray();
+        res.send(result);
+    })
+    app.get("/carts/:email",async(req,res)=>{
+      const email=req.params.email;
+      // console.log(email);
+      const queary ={buyerEmal:email};
+      // const user=await usersCollection.findOne(queary);
+      const result =await cartCollection.find(queary).toArray();
+        res.send(result);
+    })
 
 
 
