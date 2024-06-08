@@ -30,6 +30,7 @@ async function run() {
     const usersCollection=client.db('parmasmartDB').collection('users')
     const medicineCollection=client.db('parmasmartDB').collection('medicine')
     const cartCollection=client.db('parmasmartDB').collection('carts')
+    const advertisementCollection=client.db('parmasmartDB').collection('advertisement')
    
       // jwt related api
       app.post("/jwt",async(req,res)=>{
@@ -165,12 +166,12 @@ async function run() {
     // get medicine
     app.get("/medicine/:email",async(req,res)=>{
       const email=req.params.email;
-      console.log(email);
+      // console.log(email);
       const queary ={email:email};
-      console.log(queary);
+      // console.log(queary);
       // const user=await usersCollection.findOne(queary);
       const result =await medicineCollection.find(queary).toArray();
-      console.log(result);
+      // console.log(result);
         res.send(result);
     })
 
@@ -194,25 +195,78 @@ async function run() {
 
     app.post("/carts",async(req,res)=>{
       const carts=req.body;
-      console.log(carts);
+      // console.log(carts);
       const result=await cartCollection.insertOne(carts);
       res.send(result)
     })
     app.get("/carts",async(req,res)=>{
+      const email=req.query.email;
+  
+      const queary ={
+        buyerEmal:email};
+           // const user=await usersCollection.findOne(queary);
+      const result =await cartCollection.find(queary).toArray();
+    
+        res.send(result);
+    })
+ 
+
+
+    // advertisement collection
+    app.post("/advertisement",async(req,res)=>{
+      const advertisement=req.body;
+      console.log(advertisement);
+      const result=await advertisementCollection.insertOne(advertisement);
+      res.send(result)
+    })
+
+    // get medicine
+    app.get("/advertisement",async(req,res)=>{
       // const email=req.params.email;
       // console.log(email);
       // const queary ={email:email};
       // const user=await usersCollection.findOne(queary);
-      const result =await cartCollection.find().toArray();
+      const result =await advertisementCollection.find().toArray();
         res.send(result);
     })
-    app.get("/carts/:email",async(req,res)=>{
+
+
+
+    app.get("/advertisement/:email",async(req,res)=>{
       const email=req.params.email;
-      // console.log(email);
-      const queary ={buyerEmal:email};
+      console.log(email);
+      const queary ={email:email};
+      console.log(queary);
       // const user=await usersCollection.findOne(queary);
-      const result =await cartCollection.find(queary).toArray();
+      const result =await advertisementCollection.find(queary).toArray();
+      console.log(result);
         res.send(result);
+    })
+
+
+    app.patch("/advertisement/approve/:id",varifyToken,verifyAdmin,async(req,res)=>{
+      const id=req.params.id;
+      console.log(id);
+      const queary={_id:new ObjectId(id)};
+      const updateddoc={
+        $set:{
+          status:"approve"
+        }
+      }
+      const result =await advertisementCollection.updateOne(queary,updateddoc);
+      res.send(result)
+    })
+    app.patch("/advertisement/pending/:id",varifyToken,verifyAdmin,async(req,res)=>{
+      const id=req.params.id;
+      console.log(id);
+      const queary={_id:new ObjectId(id)};
+      const updateddoc={
+        $set:{
+          status:"pending"
+        }
+      }
+      const result =await advertisementCollection.updateOne(queary,updateddoc);
+      res.send(result)
     })
 
 
