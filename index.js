@@ -31,6 +31,7 @@ async function run() {
     const medicineCollection=client.db('parmasmartDB').collection('medicine')
     const cartCollection=client.db('parmasmartDB').collection('carts')
     const advertisementCollection=client.db('parmasmartDB').collection('advertisement')
+    const managecategoryCollection=client.db('parmasmartDB').collection('managecategory')
    
       // jwt related api
       app.post("/jwt",async(req,res)=>{
@@ -162,7 +163,11 @@ async function run() {
       const result=await medicineCollection.insertOne(medicine);
       res.send(result)
     })
-
+   
+    app.get("/medicine",async(req,res)=>{
+      const result =await medicineCollection.find().toArray();
+        res.send(result);
+    })
     // get medicine
     app.get("/medicine/:email",async(req,res)=>{
       const email=req.params.email;
@@ -178,7 +183,7 @@ async function run() {
 
 
     // get medicine
-    app.get("/medicine",async(req,res)=>{
+    app.get("/category",async(req,res)=>{
       // const email=req.params.email;
       // console.log(email);
       // const queary ={email:email};
@@ -270,6 +275,32 @@ async function run() {
     })
 
 
+    // category releted api 
+    app.post("/managecategory",async(req,res)=>{
+      const managecategory=req.body;
+      console.log(managecategory);
+      const result=await managecategoryCollection.insertOne(managecategory);
+      res.send(result)
+    })
+
+    app.get("/managecategory",async(req,res)=>{
+      const result =await managecategoryCollection.find().toArray();
+        res.send(result);
+    })
+    // app.get("/managecategory/:id",async(req,res)=>{
+    //   const id=req.params.id;
+    //   console.log(id);
+    //   // const queary={_id: new ObjectId(id)}
+    //   const result =await managecategoryCollection.find().toArray();
+    //   console.log(result);
+    //     res.send(result);
+    // })
+    app.delete("/managecategory/category/:id",async(req,res)=>{
+      const id =req.params.id;
+      const quary={_id : new ObjectId(id)}
+      const result= await managecategoryCollection.deleteOne(quary);
+      res.send(result);
+    })
 
 
 
