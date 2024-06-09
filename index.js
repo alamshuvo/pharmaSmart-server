@@ -216,6 +216,20 @@ async function run() {
     })
  
 
+    app.delete("/carts/cartsa/:email",async(req,res)=>{
+      const email =req.params.email;
+      const quary={buyerEmal:email}
+      const result= await cartCollection.deleteMany(quary);
+      res.send(result);
+    })
+    app.delete("/carts/cartsb/:id",async(req,res)=>{
+      const id =req.params.id;
+      const quary={_id : new ObjectId(id)}
+      const result= await cartCollection.deleteOne(quary);
+      res.send(result);
+    })
+
+
 
     // advertisement collection
     app.post("/advertisement",async(req,res)=>{
@@ -287,6 +301,17 @@ async function run() {
       const result =await managecategoryCollection.find().toArray();
         res.send(result);
     })
+
+
+    app.get("/managecategory/medicine/:category",async(req,res)=>{
+      const category=req.params.category;
+      console.log(category);
+      const filter={ category: category}
+      console.log(filter);
+      const result =await medicineCollection.find(filter).toArray();
+      console.log(result);
+        res.send(result);
+    })
     // app.get("/managecategory/:id",async(req,res)=>{
     //   const id=req.params.id;
     //   console.log(id);
@@ -307,7 +332,7 @@ async function run() {
 
 
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
