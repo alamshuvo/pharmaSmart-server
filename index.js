@@ -9,6 +9,9 @@ const port =process.env.PORT || 5000
 // middleware
 app.use(cors());
 app.use(express.json());
+const stripe = require("stripe")(process.env.STRIPE_KEY);
+
+// app.use(express.static("public"));
 
 
 
@@ -228,6 +231,52 @@ async function run() {
       const result= await cartCollection.deleteOne(quary);
       res.send(result);
     })
+
+     // update
+ app.put("/carts/id/:id",async(req,res)=>{
+  const id=req.params.id;
+  const filter={_id:new ObjectId(id)};
+  const option={upsert:true};
+  const updateTotal=req.body;
+  // console.log(updateBlog);
+  const total={
+    $set:{
+      total:updateTotal.total
+    }
+  }
+  const result =await cartCollection.updateOne(filter,total,option);
+  res.send(result)
+})
+ app.put("/carts/ida/:id",async(req,res)=>{
+  const id=req.params.id;
+  const filter={_id:new ObjectId(id)};
+  const option={upsert:true};
+  const updateTotal=req.body;
+  // console.log(updateBlog);
+  const total={
+    $set:{
+      total:updateTotal.total
+    }
+  }
+  const result =await cartCollection.updateOne(filter,total,option);
+  res.send(result)
+})
+
+// payment
+
+app.post("/create-payment-intent",async(req,res)=>{
+  const {price}=req.body;
+  const amount=parseInt(price*100);
+
+  const paymentIntent=await stripe.paymentIntents.create({
+    amount:amount,
+    currency:'usd',
+    payment_method_types:["card"]
+  });
+  res.send({
+    clientSecret:paymentIntent.client_secret
+  })
+})
 
 
 
