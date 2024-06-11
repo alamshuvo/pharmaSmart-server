@@ -35,6 +35,7 @@ async function run() {
     const cartCollection=client.db('parmasmartDB').collection('carts')
     const advertisementCollection=client.db('parmasmartDB').collection('advertisement')
     const managecategoryCollection=client.db('parmasmartDB').collection('managecategory')
+    const paymentCollection=client.db('parmasmartDB').collection('payment')
    
       // jwt related api
       app.post("/jwt",async(req,res)=>{
@@ -277,6 +278,39 @@ app.post("/create-payment-intent",async(req,res)=>{
     clientSecret:paymentIntent.client_secret
   })
 })
+
+
+
+//  payment related api 
+app.post("/payment",async(req,res)=>{
+const payment=req.body;
+console.log(req.body);
+const paymentResult=await  paymentCollection.insertOne(payment)
+// console.log("payment info",payment);
+
+res.send(paymentResult)
+// res.send(paymentResult)
+
+})
+app.delete("/payment/carts/:email",async(req,res)=>{
+  const email =req.params.email;
+  const quary={buyerEmal:email}
+  const result= await cartCollection.deleteMany(quary);
+  res.send(result);
+})
+
+app.get("/payment/a/:email",async(req,res)=>{
+  const email=req.params.email;
+  console.log(email);
+  const queary ={buyemail:email};
+  console.log(queary);
+  // const user=await usersCollection.findOne(queary);
+  const result =await paymentCollection.find(queary).toArray();
+  console.log(result);
+    res.send(result);
+})
+
+
 
 
 
