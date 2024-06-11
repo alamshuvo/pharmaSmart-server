@@ -309,6 +309,28 @@ app.get("/payment/a/:email",async(req,res)=>{
   console.log(result);
     res.send(result);
 })
+app.get("/payment",async(req,res)=>{
+  // const email=req.params.email;
+  // console.log(email);
+  // const queary ={buyemail:email};
+  // console.log(queary);
+  // const user=await usersCollection.findOne(queary);
+  const result =await paymentCollection.find().toArray();
+  console.log(result);
+    res.send(result);
+})
+app.patch("/payment/approve/:id",varifyToken,verifyAdmin,async(req,res)=>{
+  const id=req.params.id;
+  console.log(id);
+  const queary={_id:new ObjectId(id)};
+  const updateddoc={
+    $set:{
+      status:"paid"
+    }
+  }
+  const result =await paymentCollection.updateOne(queary,updateddoc);
+  res.send(result)
+})
 
 
 
